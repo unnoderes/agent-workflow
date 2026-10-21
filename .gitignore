@@ -1,0 +1,36 @@
+# Node dependencies
+node_modules/
+package-lock.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Video production outputs
+video-frames/
+tts_output/
+exports/
+画面/
+封面/
+音频/
+字幕/
+
+# Temporary files
+*.tmp
+*.log
+preview.mp3
+seg_*.mp3
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Sensitive data
+*.env
+secrets/

@@ -1,0 +1,21 @@
+cd C:\Users\Administrator\Desktop\中转站服务\new-api-control-panel # 运行目录
+
+codex resume 019da38d-4fc4-7e10-a67c-eb0f24f22ac2 项目经理
+codex resume 019da3a2-6290-7c73-9f0d-a4f3275de70a AGENT A
+codex resume 019da3a5-21fd-7ed3-8659-9877e1ca7ace AGENT B
+
+
+cd /home/unnode/workflow/api-control-panel
+codex resume 019da3f1-05f3-75a2-b404-585d850cd7fd
+codex resume 019da427-66e8-75a2-bcd6-b3ea1b4fe6cb
+
+claude --resume efdb9e19-bcc6-4679-9874-26ed0634fb2d vibe-kanban 项目经理
+claude --resume 35109bd1-f5a0-4e91-9f2a-2710036706c3
+
+协助我基于当前上下文窗口内的对话内容封装出来一个专注于代理编排与工作流设计（agent workflow）的skills，先与我讨论如功能需求，原则，提示输出格式化与整体的工作流程等等内容，随后再进行具体的落地实现
+
+
+
+
+
+

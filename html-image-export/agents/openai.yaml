@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML 图片导出"
+  short_description: "批量将 HTML 页面稳定导出为静态 PNG，避免截到动画中间态。"
+  default_prompt: "Use $html-image-export to export the HTML files in my working directory to complete static images."
