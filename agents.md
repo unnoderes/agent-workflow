@@ -6,7 +6,7 @@ This file is the canonical reference for any AI agent working in this project. R
 
 ## Project
 
-Short-video production workflow. Given a segmented video script, this project produces HTML frame previews, a cover image, TTS audio with SRT subtitles, and final exported PNGs — ready for editing and publishing.
+Short-video production workflow. Given a segmented video script, this project produces HTML frame previews, a cover image, TTS audio with SRT subtitles, final exported PNGs, and the assembled MP4 — ready for publishing.
 
 ---
 
@@ -19,9 +19,12 @@ Short-video production workflow. Given a segmented video script, this project pr
 | `cover_skill.md` | `short-video-cover` | Generate a cover HTML for the video |
 | `tts-video-skill.md` | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
 | `html-image-export/SKILL.md` | `html-image-export` | Render local HTML files to stable PNG exports via Playwright |
+| `.claude/commands/assemble-video.md` | `assemble-video` | **Run last.** Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg |
 | `agents-layout.backup.md` | `agents-layout` | *(General-purpose)* Decompose a dev task into a multi-agent layout with ready-to-paste prompts |
 
 > `agents-layout` is a general-purpose orchestration skill. It is not part of the video pipeline.
+
+`assemble-video` ships its tooling as scripts under `scripts/` (`assemble_video.py`, `generate_concat_list.py`, `parse_srt_durations.py`); its tests live in `scripts/tests/`.
 
 ---
 
@@ -48,9 +51,16 @@ Segmented script
                               ┌───────────┴───────────┐
                               ▼                       ▼
                   <project-dir>/画面/*.png   <project-dir>/封面/cover.png
+                              │
+                              ▼
+                  assemble-video  (+ 音频/final.mp3 + 字幕/subtitles.srt)
+                              │
+                              ▼
+                  <project-dir>/final_output.mp4
+                  <project-dir>/concat_list.txt
 ```
 
-The three generation steps (frames, cover, TTS) have no dependency on each other and can run in parallel once style parameters are confirmed.
+The three generation steps (frames, cover, TTS) have no dependency on each other and can run in parallel once style parameters are confirmed. `assemble-video` runs last: it needs the exported frames **and** the TTS audio + subtitles.
 
 ---
 
@@ -76,6 +86,8 @@ The three generation steps (frames, cover, TTS) have no dependency on each other
     final.mp3
     subtitles.srt
     subtitles.srt
+  final_output.mp4      ← assemble-video
+  concat_list.txt       ← assemble-video (intermediate, regenerable)
 ```
 
 ---
@@ -112,6 +124,14 @@ The following parameters are determined once per session during Phase 1 of any p
 - Insert 300 ms silence between segments when merging audio.
 - Segment files: `seg_001.mp3`, `seg_002.mp3`, … (zero-padded, three digits).
 
+**Assembly**
+- One frame per subtitle cue. The N-th cue's duration is the N-th frame's on-screen time; a frame/segment count mismatch is an error, never a guess.
+- Frames must share one size with even width and height (`yuv420p` cannot encode odd dimensions).
+- Subtitles must be UTF-8; the SRT is both the burn-in source and the timeline source.
+- Default output is H.264 + AAC 192 kbps `yuv420p`, hard subtitles burned in.
+- Never overwrite an existing `final_output.mp4` without confirming with the user (the script requires `--force`).
+- `concat_list.txt` is an intermediate artifact: safe to delete, regenerated on every run.
+
 **General**
 - Never overwrite existing HTML frames without confirming with the user.
 - Manual-screenshot frames (real GitHub UI, live demos, third-party logos) are noted in the output checklist but no HTML placeholder is generated.
@@ -123,9 +143,9 @@ The following parameters are determined once per session during Phase 1 of any p
 
 | Dependency | Required by |
 |------------|-------------|
-| Python 3 | `tts-video` (script parsing, SRT generation) |
+| Python 3 | `tts-video` (script parsing, SRT generation), `assemble-video` (timeline + FFmpeg orchestration) |
 | `mutagen` or `ffprobe` | `tts-video` (audio duration reading) |
-| `ffmpeg` | `tts-video` (audio merging) |
+| `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding). Hard subtitles additionally need an FFmpeg build with libass |
 | Node.js + `playwright-core` | `html-image-export` |
 | Network — Google Fonts CDN | `short-video-frames`, `short-video-cover` |
 | Network — MiniMax API | `tts-video` |

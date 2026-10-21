@@ -9,6 +9,7 @@ This project automates the creation of short-form videos from segmented scripts,
 - **Cover images** (multiple aspect ratios)
 - **TTS audio** with synchronized **SRT subtitles** (via MiniMax API)
 - **PNG exports** ready for editing software
+- **Final MP4** assembled by FFmpeg (frames + audio + subtitles)
 
 ## Pipeline
 
@@ -26,9 +27,11 @@ Segmented script
        html-image-export → PNG exports (Playwright)
                 ↓
        画面/*.png + 封面/cover.png
+                ↓
+       assemble-video → final_output.mp4 (FFmpeg)
 ```
 
-The three generation steps (frames, cover, TTS) are **independent and can run in parallel** once style parameters are confirmed.
+The three generation steps (frames, cover, TTS) are **independent and can run in parallel** once style parameters are confirmed. `assemble-video` runs last.
 
 ## Skills
 
@@ -39,15 +42,16 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 | `short-video-cover` | Generate cover HTML for the video |
 | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
 | `html-image-export` | Render local HTML files to stable PNG exports via Playwright |
+| `assemble-video` | Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg (hard/soft/no subtitles) |
 | `agents-layout` | *(General-purpose)* Decompose a dev task into multi-agent layout |
 
 ## Requirements
 
 | Dependency | Required by |
 |------------|-------------|
-| Python 3 | `tts-video` (script parsing, SRT generation) |
+| Python 3 | `tts-video` (script parsing, SRT generation), `assemble-video` |
 | `mutagen` or `ffprobe` | `tts-video` (audio duration reading) |
-| `ffmpeg` | `tts-video` (audio merging) |
+| `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding; hard subtitles need libass) |
 | Node.js + `playwright-core` | `html-image-export` |
 | MiniMax API key | `tts-video` |
 
@@ -104,12 +108,24 @@ See `agents.md` for detailed pipeline documentation and shared parameters (aspec
       …
     final.mp3
     subtitles.srt
+  final_output.mp4      ← assemble-video
+  concat_list.txt       ← assemble-video (intermediate)
 ```
+
+## Tests
+
+`assemble-video` has a test suite covering SRT parsing, concat-manifest generation and a real FFmpeg end-to-end run (3 frames + 9 s audio, subtitle alignment within 50 ms):
+
+```bash
+python -m unittest discover -s scripts/tests
+```
+
+The end-to-end tests generate their fixtures with FFmpeg's `lavfi` sources, so no binary assets are committed. They skip automatically when `ffmpeg`/`ffprobe` are missing.
 
 ## Roadmap
 
-- [ ] Add final assembly step (FFmpeg: PNG sequence + audio + subtitles → MP4)
-- [ ] Precise audio-visual alignment using SRT timestamps
+- [x] Add final assembly step (FFmpeg: PNG sequence + audio + subtitles → MP4)
+- [x] Precise audio-visual alignment using SRT timestamps
 - [ ] Batch production script for multiple videos
 - [ ] CI/CD integration for automated video generation
 
