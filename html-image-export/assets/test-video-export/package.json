@@ -1,0 +1,12 @@
+{
+  "name": "html-export-screenshots",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "export:screenshots": "node export-screenshots.js",
+    "export:videos": "node export-videos.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.59.1"
+  }
+}

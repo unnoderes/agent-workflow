@@ -126,6 +126,8 @@ The end-to-end tests generate their fixtures with FFmpeg's `lavfi` sources, so n
 
 - [x] Add final assembly step (FFmpeg: PNG sequence + audio + subtitles → MP4)
 - [x] Precise audio-visual alignment using SRT timestamps
+- [x] GSAP animation integration for in-frame element animations
+- [x] Playwright video recording support (WebM format)
 - [ ] Batch production script for multiple videos
 - [ ] CI/CD integration for automated video generation
 

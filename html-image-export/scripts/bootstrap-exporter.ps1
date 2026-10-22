@@ -4,7 +4,9 @@ param(
 
     [switch]$InstallDeps,
 
-    [switch]$ForceProjectSync
+    [switch]$ForceProjectSync,
+
+    [switch]$ExportVideos
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,6 +19,10 @@ $filesToSync = @(
     "package.json",
     "export-screenshots.js"
 )
+
+if ($ExportVideos) {
+    $filesToSync += "export-videos.js"
+}
 
 foreach ($fileName in $filesToSync) {
     $sourcePath = Join-Path $projectRoot $fileName
@@ -33,5 +39,10 @@ if ($InstallDeps -or -not (Test-Path -LiteralPath $playwrightCoreDir)) {
     npm install playwright-core | Out-Host
 }
 
-Write-Host "Exporting HTML files in $resolvedTarget"
-npm run export:screenshots | Out-Host
+if ($ExportVideos) {
+    Write-Host "Exporting HTML files as videos in $resolvedTarget"
+    npm run export:videos | Out-Host
+} else {
+    Write-Host "Exporting HTML files as screenshots in $resolvedTarget"
+    npm run export:screenshots | Out-Host
+}

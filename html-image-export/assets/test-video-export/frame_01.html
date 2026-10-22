@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<!-- Test Frame | GSAP Animation Test | Style 2 -->
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GSAP Animation Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+    
+    .container {
+      text-align: center;
+      padding: 60px;
+      max-width: 1200px;
+    }
+    
+    h1 {
+      font-size: 96px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 40px;
+      line-height: 1.2;
+    }
+    
+    .subtitle {
+      font-size: 42px;
+      font-weight: 400;
+      color: #94a3b8;
+      margin-bottom: 60px;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 60px;
+    }
+    
+    .feature {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .feature-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+    }
+    
+    .feature-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    
+    .feature-desc {
+      font-size: 20px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    
+    .counter {
+      font-size: 120px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin: 40px 0;
+    }
+  </style>
+</head>
+<body data-animation-duration="3500">
+  <div class="container">
+    <h1>GSAP 动画测试</h1>
+    <p class="subtitle">画面内元素动画增强</p>
+    
+    <div class="counter">0</div>
+    
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">✨</div>
+        <div class="feature-title">文字飞入</div>
+        <div class="feature-desc">平滑的淡入与位移</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">缩放动画</div>
+        <div class="feature-desc">元素从小到大</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🚀</div>
+        <div class="feature-title">数字滚动</div>
+        <div class="feature-desc">动态数据展示</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script>
+    // Create a timeline for orchestrated animations
+    const tl = gsap.timeline();
+    
+    // Title animation: fade in + slide up
+    tl.from("h1", {
+      opacity: 0,
+      y: 80,
+      duration: 0.8,
+      ease: "power3.out"
+    });
+    
+    // Subtitle animation: fade in with slight delay
+    tl.from(".subtitle", {
+      opacity: 0,
+      y: 40,
+      duration: 0.6,
+      ease: "power2.out"
+    }, "-=0.3"); // Start 0.3s before previous animation ends
+    
+    // Counter animation: count from 0 to 100
+    tl.from(".counter", {
+      textContent: 0,
+      duration: 1.5,
+      ease: "power2.inOut",
+      snap: { textContent: 1 },
+      onUpdate: function() {
+        document.querySelector(".counter").textContent = Math.round(this.targets()[0].textContent);
+      }
+    }, "-=0.2");
+    
+    // Set the final value to 100
+    tl.set(".counter", { textContent: 100 });
+    
+    // Feature cards: stagger animation (one after another)
+    tl.from(".feature", {
+      opacity: 0,
+      scale: 0.8,
+      y: 50,
+      duration: 0.6,
+      stagger: 0.2, // 0.2s delay between each card
+      ease: "back.out(1.2)"
+    }, "-=1.0");
+    
+    // Mark animation as complete for Playwright video recording
+    // total duration: 3500
+    tl.to({}, {
+      duration: 0,
+      onComplete: () => {
+        document.body.classList.add('ready');
+        console.log('Animation complete');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -18,7 +18,7 @@ Short-video production workflow. Given a segmented video script, this project pr
 | `short-video-frames.md` | `short-video-frames` | Convert segmented script into per-frame HTML previews |
 | `cover_skill.md` | `short-video-cover` | Generate a cover HTML for the video |
 | `tts-video-skill.md` | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
-| `html-image-export/SKILL.md` | `html-image-export` | Render local HTML files to stable PNG exports via Playwright |
+| `html-image-export/SKILL.md` | `html-image-export` | Render local HTML files to stable PNG exports or animated WebM videos via Playwright (supports GSAP animations) |
 | `.claude/commands/assemble-video.md` | `assemble-video` | **Run last.** Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg |
 | `agents-layout.backup.md` | `agents-layout` | *(General-purpose)* Decompose a dev task into a multi-agent layout with ready-to-paste prompts |
 
