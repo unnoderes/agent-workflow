@@ -146,7 +146,15 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 
 5. **Export and assemble**:
    ```bash
-   "Export HTML to PNG and assemble the final video"
+   # Parallel export HTML to PNG (recommended)
+   "Export HTML to PNG using parallel mode"
+   
+   # Or manually execute
+   cd html-image-export/assets/exporter-project
+   npm run export:parallel -- --input-dir <project>/html --output-dir <project>/画面
+   
+   # Assemble the final video
+   "Assemble the final video"
    ```
 
 See `agents.md` for detailed pipeline documentation and shared parameters (aspect ratio, art style, TTS voice, etc.).

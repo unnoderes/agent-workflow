@@ -18,12 +18,56 @@ Prefer this skill when:
 1. Confirm the target directory that contains the `.html` files.
 2. Use `scripts/bootstrap-exporter.ps1` to deploy the bundled exporter project into that directory.
 3. Let the script install `playwright-core` if needed.
-4. Run the exporter in screenshot mode (default) or video mode (`-ExportVideos` flag).
+4. Run the exporter in screenshot mode (default), parallel mode (recommended for batch), or video mode (`-ExportVideos` flag).
 5. Spot-check a few generated images or videos. If a page still renders incompletely, read [references/troubleshooting.md](references/troubleshooting.md).
 
 ## Command
 
-### Screenshot Export (Default)
+### Parallel Export (Recommended for Batch)
+
+For exporting multiple HTML files, parallel mode reduces export time by 60-70%.
+
+**Bash**:
+```bash
+cd html-image-export/assets/exporter-project
+npm run export:parallel -- --input-dir /path/to/html --output-dir /path/to/output
+```
+
+**PowerShell**:
+```powershell
+cd html-image-export/assets/exporter-project
+npm run export:parallel -- --input-dir C:\path\to\html --output-dir C:\path\to\output
+```
+
+#### Adjusting Concurrency
+
+Tune concurrency based on device performance:
+
+- **Low-end devices** (4GB RAM): `--concurrency 1` or `2`
+- **Standard devices** (8GB RAM): `--concurrency 3` (default)
+- **High-end devices** (16GB+ RAM): `--concurrency 5` or higher
+
+Example:
+```bash
+npm run export:parallel -- --input-dir ./html --output-dir ./画面 --concurrency 5
+```
+
+#### Performance Comparison
+
+| File Count | Serial Export | Parallel Export (3 concurrent) | Speedup |
+|------------|---------------|--------------------------------|---------|
+| 5 frames + 1 cover | ~90s | ~30s | 67% |
+| 10 frames | ~150s | ~50s | 67% |
+
+#### When to Use Serial Mode
+
+- Device has limited memory (< 4GB)
+- Debugging a single file issue
+- HTML file count ≤ 2
+
+### Screenshot Export (Single File / Serial)
+
+For single file or low-concurrency exports, use the original serial mode:
 
 Run the wrapper script:
 

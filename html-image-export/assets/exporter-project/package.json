@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "export:screenshots": "node export-screenshots.js",
-    "export:videos": "node export-videos.js"
+    "export:videos": "node export-videos.js",
+    "export:parallel": "node export-parallel.js"
   },
   "dependencies": {
     "playwright-core": "^1.59.1"

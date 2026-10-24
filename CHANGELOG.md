@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] - Parallel PNG export
+
+### Added
+- **`export-parallel.js`** (`html-image-export/assets/exporter-project/`)
+  - Multi-browser concurrent PNG export via Playwright
+  - Flags: `--input-dir`, `--output-dir`, `--concurrency` (default 3)
+  - Round-robin task distribution, per-file error isolation, progress logging
+  - Settles CSS animations and GSAP timelines before capture
+- `export:parallel` npm script in `package.json`
+- Reference docs under `html-image-export/assets/exporter-project/`:
+  `README.md`, `QUICK_REFERENCE.md`, `TEST.md`, `ARCHITECTURE.md`, `PERFORMANCE_TEST.md`
+
+### Changed
+- `html-image-export/SKILL.md`: parallel mode documented as the batch default; serial mode retained for 1–2 files
+- Root `README.md`: quick-start export step now uses parallel mode
+- `agents.md`: Export conventions note parallel mode for batches
+
+### Verified
+- 6 frames (1080×1920, CSS animation) exported 6/6: 2.59 s wall clock at
+  `--concurrency 3` vs 3.22 s at `--concurrency 1` on the same machine.
+  Gains grow with render cost per file; static pages are dominated by browser startup.
+
+---
+
 ## [2025-01-XX] - Notion-Based Two-Phase Workflow
 
 ### Added

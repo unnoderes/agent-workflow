@@ -157,6 +157,7 @@ The following parameters are determined once per session during Phase 1 of any p
 - PNG export is always triggered explicitly by the user. No skill auto-exports.
 - Exports go to `exports/` inside the HTML source directory.
 - Use `html-image-export` for any HTML-to-PNG conversion; do not use ad-hoc screenshot commands.
+- For batches (3+ files), prefer `npm run export:parallel -- --input-dir <html> --output-dir <out>`; tune `--concurrency` to available memory (default 3).
 
 **TTS**
 - Preview the first segment before batch-generating. Skip preview only if the user explicitly says so.
