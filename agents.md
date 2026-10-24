@@ -188,3 +188,4 @@ The following parameters are determined once per session during Phase 1 of any p
 | Node.js + `playwright-core` | `html-image-export` |
 | Network — Google Fonts CDN | `short-video-frames`, `short-video-cover` |
 | Network — MiniMax API | `tts-video` |
+| Desktop template directory | `init-video-project` (auto-created if missing via `scripts/ensure_directory_template.{sh,ps1}`) |

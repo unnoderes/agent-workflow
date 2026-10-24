@@ -38,12 +38,64 @@ description: 初始化视频制作项目目录。当用户提到新视频主题�
 
 ---
 
-### Step 2 — 复制模板目录
+### Step 2 — 检查并准备模板目录
+
+**步骤 2.1**：检查模板目录是否存在
 
 模板固定路径（本机）：
 ```
 C:\Users\Administrator\Desktop\directory-template
 ```
+
+检查命令（bash）：
+```bash
+if [ ! -d "C:/Users/Administrator/Desktop/directory-template" ]; then
+    echo "模板目录不存在"
+fi
+```
+
+或 PowerShell：
+```powershell
+Test-Path "C:\Users\Administrator\Desktop\directory-template"
+```
+
+**步骤 2.2**：如果模板目录不存在，自动创建标准结构
+
+当检测到模板目录不存在时，**不要报错停止**，而是自动创建标准目录结构：
+
+```bash
+mkdir -p "C:/Users/Administrator/Desktop/directory-template/html"
+mkdir -p "C:/Users/Administrator/Desktop/directory-template/画面"
+mkdir -p "C:/Users/Administrator/Desktop/directory-template/封面"
+mkdir -p "C:/Users/Administrator/Desktop/directory-template/音频"
+mkdir -p "C:/Users/Administrator/Desktop/directory-template/字幕"
+```
+
+或 PowerShell：
+```powershell
+$templatePath = "C:\Users\Administrator\Desktop\directory-template"
+New-Item -Path "$templatePath\html" -ItemType Directory -Force
+New-Item -Path "$templatePath\画面" -ItemType Directory -Force
+New-Item -Path "$templatePath\封面" -ItemType Directory -Force
+New-Item -Path "$templatePath\音频" -ItemType Directory -Force
+New-Item -Path "$templatePath\字幕" -ItemType Directory -Force
+```
+
+创建完成后向用户说明：
+```
+ℹ️ 检测到 Desktop 上没有 directory-template 模板目录。
+已自动创建标准目录结构：
+  C:\Users\Administrator\Desktop\directory-template\
+    ├── html/
+    ├── 画面/
+    ├── 封面/
+    ├── 音频/
+    └── 字幕/
+
+此模板将用于后续所有视频项目的初始化。
+```
+
+**步骤 2.3**：复制模板目录到项目位置
 
 执行复制（bash）：
 ```bash
@@ -94,6 +146,7 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\directory-template" `
 
 ## 注意
 
-- 模板目录为只读参照，始终复制，不得直接修改 Desktop 上的原始目录。
-- 每个视频主题对应一个独立的项目目录，不要在同一目录下混放多个视频的文件。
-- `.agent/skills/` 内已包含本项目所需的全部技能文件，无需再从外部导入。
+- **模板目录自动创建**：如果 Desktop 上没有 `directory-template` 目录，会自动创建标准结构。
+- **模板目录为只读参照**：始终复制，不得直接修改 Desktop 上的原始目录。
+- **每个视频独立目录**：每个视频主题对应一个独立的项目目录，不要在同一目录下混放多个视频的文件。
+- **Skills 文件可选**：`.agent/skills/` 内可以包含本项目所需的全部技能文件，但不是必需的（全局 skills 已可用）。

@@ -107,6 +107,17 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
    npm install
    ```
 
+6. **(Optional) Create template directory**:
+   ```bash
+   # Bash
+   ./scripts/ensure_directory_template.sh
+   
+   # PowerShell
+   .\scripts\ensure_directory_template.ps1
+   ```
+   
+   > **Note**: If the template directory doesn't exist on your Desktop, `init-video-project` will automatically create it on first use. This step is optional.
+
 ## Usage
 
 ### Quick Start
