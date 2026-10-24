@@ -1,9 +1,34 @@
 ---
 name: video-script-planning
-description: 从视频主题和风格需求出发，通过联网搜索收集素材，设计完整的视频内容策划方案，生成分段脚本并输出参数建议。这是短视频制作流水线的第一步，为后续的 short-video-frames、short-video-cover、tts-video 等 skills 提供输入。适用于教育、营销、解说类短视频的内容策划。
+description: ⚠️ **DEPRECATED**: 此 skill 已被拆分为 `collect-video-materials` 和 `generate-video-script` 两个独立 skills。请使用新的两阶段流程。原功能：从视频主题和风格需求出发，通过联网搜索收集素材，设计完整的视频内容策划方案，生成分段脚本并输出参数建议。
 ---
 
 # video-script-planning
+
+## ⚠️ DEPRECATED
+
+**此 skill 已废弃，请使用新的两阶段流程：**
+
+1. **第一阶段：素材收集** → `.agents/skills/collect-video-materials/SKILL.md`
+   - 创建 Notion 工作空间
+   - 联网搜索收集素材
+   - 写入 Notion 素材库
+
+2. **第二阶段：脚本生成** → `.agents/skills/generate-video-script/SKILL.md`
+   - 从 Notion 读取素材
+   - 分析覆盖度并补充搜索
+   - 设计结构并生成脚本
+   - 写回 Notion
+
+**新流程的优势：**
+- 职责分离：素材收集与脚本生成独立
+- 中间可审核：人工可在 Notion 中补充/删减素材
+- 可复用：一份素材库可生成多种风格的脚本
+- 团队协作：多人可同时在 Notion 编辑素材
+
+---
+
+## 原功能文档（仅供参考）
 
 ## 1. 搜索素材
 

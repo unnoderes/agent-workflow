@@ -12,9 +12,13 @@ Short-video production workflow. Given a segmented video script, this project pr
 
 ## Skill Index
 
+### Video Production Pipeline Skills
+
 | File | Skill name | Role in pipeline |
 |------|------------|-----------------|
-| `init-video-project.md` | `init-video-project` | **Run first.** Copy the Desktop template and create the project directory for a new video |
+| `.agents/skills/collect-video-materials/SKILL.md` | `collect-video-materials` | **Phase 1 (Materials).** Create Notion workspace, collect materials via web search, write structured materials to Notion |
+| `.agents/skills/generate-video-script/SKILL.md` | `generate-video-script` | **Phase 2 (Script).** Read materials from Notion, analyze coverage, design structure, generate segmented script, recommend parameters, write back to Notion |
+| `init-video-project.md` | `init-video-project` | **Phase 3 (Project Init).** Copy the Desktop template and create the project directory for a new video |
 | `short-video-frames.md` | `short-video-frames` | Convert segmented script into per-frame HTML previews |
 | `cover_skill.md` | `short-video-cover` | Generate a cover HTML for the video |
 | `tts-video-skill.md` | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
@@ -34,9 +38,44 @@ Short-video production workflow. Given a segmented video script, this project pr
 Video theme / title
        │
        ▼
+┌──────────────────────────────────────────────────────────┐
+│  Phase 1: Materials Collection (Notion-based)            │
+└──────────────────────────────────────────────────────────┘
+       │
+       ▼
+collect-video-materials  ──► Notion Workspace
+       │                        ├─ 📚 Materials Library
+       │                        ├─ 📝 Script (placeholder)
+       │                        └─ 🎬 Project Info
+       │
+       ├── Web search 3+ times
+       ├── Extract hooks, data, cases, comparisons
+       └── Write to Notion Materials Library
+       │
+       ▼
+┌──────────────────────────────────────────────────────────┐
+│  Phase 2: Script Generation (Notion-based)               │
+└──────────────────────────────────────────────────────────┘
+       │
+       ▼
+generate-video-script  ──► Read Materials Library
+       │                   ├─ Analyze coverage
+       │                   ├─ Optional: supplement search
+       │                   ├─ Design structure
+       │                   ├─ Generate segmented script
+       │                   └─ Recommend parameters
+       │
+       └───► Write back to Notion Script Page
+       │
+       ▼
+┌──────────────────────────────────────────────────────────┐
+│  Phase 3: Local Project Setup                            │
+└──────────────────────────────────────────────────────────┘
+       │
+       ▼
 init-video-project  ──► <project-dir>/  (.agent/skills, html, 画面, 封面, 音频, 字幕)
        │
-Segmented script
+   Segmented script (from Notion or manual)
        │
        ├──► short-video-frames ──► <project-dir>/html/frame_01.html … frame_N.html
        │

@@ -16,9 +16,23 @@ This project automates the creation of short-form videos from segmented scripts,
 ```
 Video theme/title
        ↓
-video-script-planning → Content planning with web research
-       ↓                (Output: local .md or Notion page)
-init-video-project  → Create project directory from template
+┌─────────────────────────────────────────────────────────┐
+│  Phase 1: Materials Collection (Notion)                 │
+└─────────────────────────────────────────────────────────┘
+       ↓
+collect-video-materials → Notion workspace created
+       ↓                  (Materials library + Script placeholder)
+┌─────────────────────────────────────────────────────────┐
+│  Phase 2: Script Generation (Notion)                    │
+└─────────────────────────────────────────────────────────┘
+       ↓
+generate-video-script → Full script written to Notion
+       ↓
+┌─────────────────────────────────────────────────────────┐
+│  Phase 3: Local Production                              │
+└─────────────────────────────────────────────────────────┘
+       ↓
+init-video-project → Create project directory from template
        ↓
 Segmented script
        ↓
@@ -38,9 +52,10 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 ## Skills
 
 | Skill | Purpose |
-|-------|---------||
-| `video-script-planning` | Research-driven content planning: web search → segmented script → production parameters (supports local .md or Notion output) |
-| `init-video-project` | Initialize project directory from Desktop template |
+|-------|---------|
+| `collect-video-materials` | **Phase 1**: Create Notion workspace, web search for materials (hooks, data, cases), write to Notion materials library |
+| `generate-video-script` | **Phase 2**: Read Notion materials, analyze coverage, optional supplement search, design structure, generate segmented script with parameters, write to Notion |
+| `init-video-project` | **Phase 3**: Initialize project directory from Desktop template |
 | `short-video-frames` | Convert segmented script into per-frame HTML previews |
 | `short-video-cover` | Generate cover HTML for the video |
 | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
@@ -52,12 +67,12 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 
 | Dependency | Required by |
 |------------|-------------|
+| **Notion MCP Server** | `collect-video-materials`, `generate-video-script` |
 | Python 3 | `tts-video` (script parsing, SRT generation), `assemble-video` |
 | `mutagen` or `ffprobe` | `tts-video` (audio duration reading) |
 | `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding; hard subtitles need libass) |
 | Node.js + `playwright-core` | `html-image-export` |
 | MiniMax API key | `tts-video` |
-| Notion MCP Server *(optional)* | `video-script-planning` (Notion output mode) |
 
 ## Setup
 
@@ -66,7 +81,12 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
    export MINIMAX_API_KEY="sk-api-..."
    ```
 
-2. **Prepare Desktop template** (required by `init-video-project`):
+2. **Connect Notion MCP Server** in Claude Code:
+   - Install and configure the Notion MCP server
+   - Authenticate with your Notion workspace
+   - Required for `collect-video-materials` and `generate-video-script`
+
+3. **Prepare Desktop template** (required by `init-video-project`):
    ```
    ~/Desktop/directory-template/
    ├── html/
@@ -76,12 +96,12 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
    └── 字幕/
    ```
 
-3. **Install Python dependencies** (optional, for `tts-video`):
+4. **Install Python dependencies** (optional, for `tts-video`):
    ```bash
    pip install mutagen
    ```
 
-4. **Install Playwright** (for `html-image-export`):
+5. **Install Playwright** (for `html-image-export`):
    ```bash
    cd html-image-export/assets/exporter-project
    npm install
@@ -91,24 +111,29 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 
 ### Quick Start
 
-1. **Plan your video content** (with web research):
+1. **Collect materials in Notion** (with web research):
    ```bash
-   # AI agent will search the web, design structure, and generate script
-   # Output options: local script-plan.md or Notion page
-   "Create a 60-second video script about [your topic]"
+   # AI agent will search the web, extract materials, create Notion workspace
+   "Collect materials for video: [your topic]"
    ```
 
-2. **Initialize project**:
+2. **Generate script from materials**:
+   ```bash
+   # AI agent will read materials, analyze coverage, generate full script
+   "Generate script from workspace: [Notion URL]"
+   ```
+
+3. **Initialize local project**:
    ```bash
    "Run init-video-project for [project-name]"
    ```
 
-3. **Generate video assets** (parallel):
+4. **Generate video assets** (parallel):
    ```bash
    "Generate frames, cover, and audio from the script"
    ```
 
-4. **Export and assemble**:
+5. **Export and assemble**:
    ```bash
    "Export HTML to PNG and assemble the final video"
    ```
