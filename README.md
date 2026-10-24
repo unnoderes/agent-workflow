@@ -16,6 +16,8 @@ This project automates the creation of short-form videos from segmented scripts,
 ```
 Video theme/title
        ↓
+video-script-planning → Content planning with web research
+       ↓                (Output: local .md or Notion page)
 init-video-project  → Create project directory from template
        ↓
 Segmented script
@@ -36,7 +38,8 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 ## Skills
 
 | Skill | Purpose |
-|-------|---------|
+|-------|---------||
+| `video-script-planning` | Research-driven content planning: web search → segmented script → production parameters (supports local .md or Notion output) |
 | `init-video-project` | Initialize project directory from Desktop template |
 | `short-video-frames` | Convert segmented script into per-frame HTML previews |
 | `short-video-cover` | Generate cover HTML for the video |
@@ -54,6 +57,7 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 | `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding; hard subtitles need libass) |
 | Node.js + `playwright-core` | `html-image-export` |
 | MiniMax API key | `tts-video` |
+| Notion MCP Server *(optional)* | `video-script-planning` (Notion output mode) |
 
 ## Setup
 
@@ -84,6 +88,30 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
    ```
 
 ## Usage
+
+### Quick Start
+
+1. **Plan your video content** (with web research):
+   ```bash
+   # AI agent will search the web, design structure, and generate script
+   # Output options: local script-plan.md or Notion page
+   "Create a 60-second video script about [your topic]"
+   ```
+
+2. **Initialize project**:
+   ```bash
+   "Run init-video-project for [project-name]"
+   ```
+
+3. **Generate video assets** (parallel):
+   ```bash
+   "Generate frames, cover, and audio from the script"
+   ```
+
+4. **Export and assemble**:
+   ```bash
+   "Export HTML to PNG and assemble the final video"
+   ```
 
 See `agents.md` for detailed pipeline documentation and shared parameters (aspect ratio, art style, TTS voice, etc.).
 
