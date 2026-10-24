@@ -18,17 +18,19 @@ Short-video production workflow. Given a segmented video script, this project pr
 |------|------------|-----------------|
 | `.agents/skills/collect-video-materials/SKILL.md` | `collect-video-materials` | **Phase 1 (Materials).** Create Notion workspace, collect materials via web search, write structured materials to Notion |
 | `.agents/skills/generate-video-script/SKILL.md` | `generate-video-script` | **Phase 2 (Script).** Read materials from Notion, analyze coverage, design structure, generate segmented script, recommend parameters, write back to Notion |
-| `init-video-project.md` | `init-video-project` | **Phase 3 (Project Init).** Copy the Desktop template and create the project directory for a new video |
-| `short-video-frames.md` | `short-video-frames` | Convert segmented script into per-frame HTML previews |
-| `cover_skill.md` | `short-video-cover` | Generate a cover HTML for the video |
-| `tts-video-skill.md` | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
-| `html-image-export/SKILL.md` | `html-image-export` | Render local HTML files to stable PNG exports or animated WebM videos via Playwright (supports GSAP animations) |
-| `.claude/commands/assemble-video.md` | `assemble-video` | **Run last.** Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg |
-| `agents-layout.backup.md` | `agents-layout` | *(General-purpose)* Decompose a dev task into a multi-agent layout with ready-to-paste prompts |
+| `.agents/skills/init-video-project/SKILL.md` | `init-video-project` | **Phase 3 (Project Init).** Copy the Desktop template and create the project directory for a new video |
+| `.agents/skills/short-video-frames/SKILL.md` | `short-video-frames` | Convert segmented script into per-frame HTML previews |
+| `.agents/skills/short-video-cover/SKILL.md` | `short-video-cover` | Generate a cover HTML for the video |
+| `.agents/skills/tts-video/SKILL.md` | `tts-video` | Call MiniMax TTS to produce MP3 audio and SRT subtitles |
+| `.agents/skills/html-image-export/SKILL.md` | `html-image-export` | Render local HTML files to stable PNG exports or animated WebM videos via Playwright (supports GSAP animations) |
+| `.agents/skills/assemble-video/SKILL.md` | `assemble-video` | **Run last.** Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg |
+| `.agents/skills/agents-layout/SKILL.md` | `agents-layout` | *(General-purpose)* Decompose a dev task into a multi-agent layout with ready-to-paste prompts |
 
 > `agents-layout` is a general-purpose orchestration skill. It is not part of the video pipeline.
 
-`assemble-video` ships its tooling as scripts under `scripts/` (`assemble_video.py`, `generate_concat_list.py`, `parse_srt_durations.py`); its tests live in `scripts/tests/`.
+`.agents/skills/` is the single source of truth for every skill in this repository: one `SKILL.md` per skill, no copies elsewhere. A skill's own supporting files live beside it (e.g. `html-image-export/assets/`, `html-image-export/scripts/`).
+
+`assemble-video` ships its tooling as repository-level scripts under `scripts/` (`assemble_video.py`, `generate_concat_list.py`, `parse_srt_durations.py`); its tests live in `scripts/tests/`.
 
 ---
 
@@ -73,7 +75,7 @@ generate-video-script  ──► Read Materials Library
 └──────────────────────────────────────────────────────────┘
        │
        ▼
-init-video-project  ──► <project-dir>/  (.agent/skills, html, 画面, 封面, 音频, 字幕)
+init-video-project  ──► <project-dir>/  (html, 画面, 封面, 音频, 字幕)
        │
    Segmented script (from Notion or manual)
        │
@@ -105,28 +107,31 @@ The three generation steps (frames, cover, TTS) have no dependency on each other
 
 ## Output Layout
 
+Every stage writes into the project directory created by `init-video-project`. This is the only layout in the pipeline: `assemble_video.py` hardcodes the three input paths below, so no skill may write anywhere else.
+
 ```
-<working-dir>/
-  video-frames/
+<project-dir>/
+  html/                        ← short-video-frames, short-video-cover
     frame_01.html
     frame_02.html
     …
     cover.html
-    exports/
-      frame_01.png
-      frame_02.png
-      …
-      cover.png
-  tts_output/
+  画面/                         ← html-image-export (frames)
+    frame_01.png
+    frame_02.png
+    …
+  封面/                         ← html-image-export (cover)
+    cover.png
+  音频/                         ← tts-video
     segments/
       seg_001.mp3
       seg_002.mp3
       …
     final.mp3
-    subtitles.srt
-    subtitles.srt
-  final_output.mp4      ← assemble-video
-  concat_list.txt       ← assemble-video (intermediate, regenerable)
+  字幕/
+    subtitles.srt              ← tts-video
+  final_output.mp4             ← assemble-video
+  concat_list.txt              ← assemble-video (intermediate, regenerable)
 ```
 
 ---
@@ -155,9 +160,9 @@ The following parameters are determined once per session during Phase 1 of any p
 
 **Export**
 - PNG export is always triggered explicitly by the user. No skill auto-exports.
-- Exports go to `exports/` inside the HTML source directory.
+- Frames export to `<project-dir>/画面/`, the cover to `<project-dir>/封面/`. Both source from `<project-dir>/html/`, so always pass `--include` to keep the two runs apart.
 - Use `html-image-export` for any HTML-to-PNG conversion; do not use ad-hoc screenshot commands.
-- For batches (3+ files), prefer `npm run export:parallel -- --input-dir <html> --output-dir <out>`; tune `--concurrency` to available memory (default 3).
+- For batches (3+ files), prefer `npm run export:parallel -- --input-dir <project-dir>/html --output-dir <out> --include "frame_*.html"`; tune `--concurrency` to available memory (default 3).
 
 **TTS**
 - Preview the first segment before batch-generating. Skip preview only if the user explicitly says so.
@@ -187,6 +192,7 @@ The following parameters are determined once per session during Phase 1 of any p
 | `mutagen` or `ffprobe` | `tts-video` (audio duration reading) |
 | `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding). Hard subtitles additionally need an FFmpeg build with libass |
 | Node.js + `playwright-core` | `html-image-export` |
+| A Chromium-based browser | `html-image-export` (Chrome/Edge/Chromium/Brave, or `npx playwright install chromium`; override with `CHROME_PATH`) |
 | Network — Google Fonts CDN | `short-video-frames`, `short-video-cover` |
 | Network — MiniMax API | `tts-video` |
 | Desktop template directory | `init-video-project` (auto-created if missing via `scripts/ensure_directory_template.{sh,ps1}`) |

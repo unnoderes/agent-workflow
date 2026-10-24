@@ -63,6 +63,8 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 | `assemble-video` | Join PNG frames + MP3 + SRT into the final MP4 via FFmpeg (hard/soft/no subtitles) |
 | `agents-layout` | *(General-purpose)* Decompose a dev task into multi-agent layout |
 
+Every skill is defined once, at `.agents/skills/<skill-name>/SKILL.md`.
+
 ## Requirements
 
 | Dependency | Required by |
@@ -72,6 +74,7 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 | `mutagen` or `ffprobe` | `tts-video` (audio duration reading) |
 | `ffmpeg` + `ffprobe` | `tts-video` (audio merging), `assemble-video` (encoding; hard subtitles need libass) |
 | Node.js + `playwright-core` | `html-image-export` |
+| A Chromium-based browser | `html-image-export` (Chrome/Edge/Chromium/Brave, or `npx playwright install chromium`; override with `CHROME_PATH`) |
 | MiniMax API key | `tts-video` |
 
 ## Setup
@@ -103,7 +106,7 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 
 5. **Install Playwright** (for `html-image-export`):
    ```bash
-   cd html-image-export/assets/exporter-project
+   cd .agents/skills/html-image-export/assets/exporter-project
    npm install
    ```
 
@@ -146,13 +149,11 @@ The three generation steps (frames, cover, TTS) are **independent and can run in
 
 5. **Export and assemble**:
    ```bash
-   # Parallel export HTML to PNG (recommended)
-   "Export HTML to PNG using parallel mode"
-   
-   # Or manually execute
-   cd html-image-export/assets/exporter-project
-   npm run export:parallel -- --input-dir <project>/html --output-dir <project>/画面
-   
+   # Export frames and cover into their own directories
+   cd .agents/skills/html-image-export/assets/exporter-project
+   npm run export:parallel -- --input-dir <project>/html --output-dir <project>/画面 --include "frame_*.html"
+   npm run export:parallel -- --input-dir <project>/html --output-dir <project>/封面 --include cover.html
+
    # Assemble the final video
    "Assemble the final video"
    ```
@@ -161,28 +162,34 @@ See `agents.md` for detailed pipeline documentation and shared parameters (aspec
 
 ## Output Layout
 
+Every stage writes into the project directory created by `init-video-project`. This is the only layout in the pipeline: `assemble_video.py` hardcodes the three input paths below, so no skill may write anywhere else.
+
 ```
-<working-dir>/
-  video-frames/
+<project-dir>/
+  html/                        ← short-video-frames, short-video-cover
     frame_01.html
     frame_02.html
     …
     cover.html
-    exports/
-      frame_01.png
-      frame_02.png
-      …
-      cover.png
-  tts_output/
+  画面/                         ← html-image-export (frames)
+    frame_01.png
+    frame_02.png
+    …
+  封面/                         ← html-image-export (cover)
+    cover.png
+  音频/                         ← tts-video
     segments/
       seg_001.mp3
       seg_002.mp3
       …
     final.mp3
-    subtitles.srt
-  final_output.mp4      ← assemble-video
-  concat_list.txt       ← assemble-video (intermediate)
+  字幕/
+    subtitles.srt              ← tts-video
+  final_output.mp4             ← assemble-video
+  concat_list.txt              ← assemble-video (intermediate, regenerable)
 ```
+
+Frame and cover HTML share `html/`, so the export step selects which files a run picks up (`--include "frame_*.html"` vs `--include cover.html`) instead of writing both into `画面/`.
 
 ## Tests
 
