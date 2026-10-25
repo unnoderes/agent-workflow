@@ -1,6 +1,7 @@
 ---
 name: init-video-project
-description: 初始化视频制作项目目录。当用户提到新视频主题、或即将调用任何视频生产技能（short-video-frames / short-video-cover / tts-video）时，自动将 Desktop 上的 directory-template 副本复制到当前项目根目录，并按视频主题重命名。
+description: 初始化视频制作项目目录。当用户提到新视频主题、或即将调用任何视频生产技能（short-video-frames / short-video-cover / tts-video）时，自动将 Desktop 上的 directory-template 副本复制到用户指定的位置，并按视频主题重命名。
+allowed-tools: [AskUserQuestion, Bash, Read]
 ---
 
 # init-video-project
@@ -18,6 +19,68 @@ description: 初始化视频制作项目目录。当用户提到新视频主题�
 ---
 
 ## 工作流
+
+### Step 0 — 确认项目创建位置
+
+**使用 AskUserQuestion 工具询问项目创建位置**：
+
+```json
+{
+  "questions": [
+    {
+      "question": "请选择项目创建位置：",
+      "header": "创建位置",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "桌面（默认）",
+          "description": "~/Desktop — 便于快速访问和文件管理"
+        },
+        {
+          "label": "当前目录",
+          "description": ". — 在当前工作目录下创建"
+        },
+        {
+          "label": "文档目录",
+          "description": "~/Documents — 与其他文档一起归档"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**选项处理逻辑**：
+
+- 选择“桌面（默认）” → 使用 `~/Desktop` 或 `C:/Users/Administrator/Desktop`
+- 选择“当前目录” → 使用 `.`（当前工作目录）
+- 选择“文档目录” → 使用 `~/Documents` 或 `C:/Users/Administrator/Documents`
+- 选择“Other”（自定义输入） → 使用用户提供的路径（需验证目录存在）
+
+**路径验证**：
+
+在使用用户选择的目录前，必须验证其存在：
+
+```bash
+# 验证目录存在
+if [ ! -d "<用户选择的路径>" ]; then
+    echo "错误：目录 <用户选择的路径> 不存在"
+    exit 1
+fi
+```
+
+或 PowerShell：
+
+```powershell
+if (-not (Test-Path "<用户选择的路径>")) {
+    Write-Error "错误：目录 <用户选择的路径> 不存在"
+    exit 1
+}
+```
+
+如果用户选择的目录不存在，向用户报告错误并要求重新选择。
+
+---
 
 ### Step 1 — 推导项目目录名
 
@@ -95,18 +158,23 @@ New-Item -Path "$templatePath\字幕" -ItemType Directory -Force
 此模板将用于后续所有视频项目的初始化。
 ```
 
-**步骤 2.3**：复制模板目录到项目位置
+**步骤 2.3**：复制模板目录到用户指定的项目位置
 
 执行复制（bash）：
 ```bash
-cp -r "C:/Users/Administrator/Desktop/directory-template" "./<项目目录名>"
+cp -r "C:/Users/Administrator/Desktop/directory-template" "<用户选择的路径>/<项目目录名>"
 ```
 
 或 PowerShell：
 ```powershell
 Copy-Item -Path "C:\Users\Administrator\Desktop\directory-template" `
-          -Destination ".\<项目目录名>" -Recurse
+          -Destination "<用户选择的路径>\<项目目录名>" -Recurse
 ```
+
+**重要**：
+- 如果用户选择了“当前目录”，使用 `./<项目目录名>`
+- 如果选择了“桌面”，使用 `~/Desktop/<项目目录名>` 或 `C:/Users/Administrator/Desktop/<项目目录名>`
+- 如果选择了“文档目录”，使用 `~/Documents/<项目目录名>` 或 `C:/Users/Administrator/Documents/<项目目录名>`
 
 复制完成后验证目录存在，不存在则报错停止。
 
@@ -115,7 +183,7 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\directory-template" `
 ### Step 3 — 输出初始化摘要
 
 ```
-已初始化项目目录：./<项目目录名>/
+已初始化项目目录：<用户选择的路径>/<项目目录名>/
 
   html/              HTML 预览文件（frames + cover 的源文件）
   画面/              导出的画面帧 PNG
@@ -125,6 +193,12 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\directory-template" `
 
 后续所有技能的输出请写入上述对应子目录（见下方「项目目录结构」）。
 ```
+
+**注意**：
+- 如果用户选择了“当前目录”，显示为 `./<项目目录名>/`
+- 如果选择了“桌面”，显示为 `~/Desktop/<项目目录名>/`
+- 如果选择了“文档目录”，显示为 `~/Documents/<项目目录名>/`
+- 如果是自定义路径，显示完整路径
 
 ---
 
@@ -156,7 +230,9 @@ Copy-Item -Path "C:\Users\Administrator\Desktop\directory-template" `
 
 ## 注意
 
+- **项目创建位置**：默认为桌面目录，但用户可以选择当前目录、文档目录或自定义路径。
 - **模板目录自动创建**：如果 Desktop 上没有 `directory-template` 目录，会自动创建标准结构。
 - **模板目录为只读参照**：始终复制，不得直接修改 Desktop 上的原始目录。
 - **每个视频独立目录**：每个视频主题对应一个独立的项目目录，不要在同一目录下混放多个视频的文件。
 - **技能不随项目复制**：所有技能始终从本仓库 `.agents/skills/` 加载，不复制进每个视频项目目录。
+- **后续 skill 应使用用户选择的路径**：所有后续的视频生产 skills（short-video-frames / tts-video 等）都应将文件写入用户选择的项目目录，不是固定的桌面目录。
