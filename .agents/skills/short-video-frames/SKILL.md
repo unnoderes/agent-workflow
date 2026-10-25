@@ -1,6 +1,7 @@
 ---
 name: short-video-frames
 description: 将分段视频文案转化为可预览的 HTML 画面文件，支持 GSAP 动画效果。输入分段脚本,Claude 自主决定构图与视觉表达,识别哪些画面由自己生成、哪些建议用户手动截图,最终在审核通过后再决定是否导出图片或动画视频。适用于 GitHub 项目推荐类短视频的画面内容生产。
+allowed-tools: [AskUserQuestion, Write, Read, Bash]
 ---
 
 # short-video-frames
@@ -27,19 +28,61 @@ description: 将分段视频文案转化为可预览的 HTML 画面文件，支�
 
 ### Phase 1 — 风格与规格确认
 
-在开始生成前，向用户呈现以下选项，**等待选择后**再进入 Phase 2：
+**使用 AskUserQuestion 工具进行交互式选择**：
 
-**画面比例**
-- A · 16:9 横屏（1920 × 1080）— B 站 / YouTube
-- B · 9:16 竖屏（1080 × 1920）— 抖音 / 小红书 Reels
-- C · 1:1 方形（1080 × 1080）— 小红书图文
+```json
+{
+  "questions": [
+    {
+      "question": "请选择视频画面比例：",
+      "header": "画面比例",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "16:9 横屏",
+          "description": "1920 × 1080 — 适合 B 站 / YouTube 横屏视频"
+        },
+        {
+          "label": "9:16 竖屏",
+          "description": "1080 × 1920 — 适合抖音 / 小红书 Reels 竖屏视频"
+        },
+        {
+          "label": "1:1 方形",
+          "description": "1080 × 1080 — 适合小红书图文内容"
+        }
+      ]
+    },
+    {
+      "question": "请选择美术风格：",
+      "header": "美术风格",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "1 · 极简白底",
+          "description": "大量留白 + 细实边框 — 适合商业、产品、简洁教程"
+        },
+        {
+          "label": "2 · 暗色技术感",
+          "description": "深色层次 + 冷色强调 + 网格纹理 — 适合编程、技术、开发工具"
+        },
+        {
+          "label": "3 · 暖调书卷",
+          "description": "纸张质地 + 衬线标题 + 金属色点缀 — 适合人文、设计、创意"
+        },
+        {
+          "label": "4 · 杂志对比",
+          "description": "高对比度 + 粗重标题 + 黑白分局 — 适合营销、品牌、对比测评"
+        }
+      ]
+    }
+  ]
+}
+```
 
-**美术风格**（每种风格都有完整的 Design System 规范，见下方详细说明）
-- 1 · 极简白底（Minimal White）— 适合商业、产品、简洁教程
-- 2 · 暗色技术感（Dark Tech）— 适合编程、技术、开发工具
-- 3 · 暖调书卷（Warm Parchment）— 适合人文、设计、创意
-- 4 · 杂志对比（Magazine Contrast）— 适合营销、品牌、对比测评
-- 5 · 自定义（Custom）— 用户描述具体要求，Claude 自行诠释
+**重要**：
+- 在开始生成前，必须等待用户通过 AskUserQuestion 工具选择完毕
+- 获取用户的选择后，再进入 Phase 2 生成流程
+- 如果用户选择了 "Other" 自定义输入，则按风格 5（自定义）处理
 
 ---
 

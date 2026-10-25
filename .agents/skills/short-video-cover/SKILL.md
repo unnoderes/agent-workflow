@@ -1,6 +1,7 @@
 ---
 name: short-video-cover
 description: 为短视频生成封面 HTML 文件。输入视频标题、核心卖点与风格偏好，Claude 自主设计封面构图并输出可截图的 HTML 文件。与 short-video-frames 配套使用，也可独立调用。
+allowed-tools: [AskUserQuestion, Write, Read]
 ---
 
 # short-video-cover
@@ -19,25 +20,81 @@ description: 为短视频生成封面 HTML 文件。输入视频标题、核心�
 
 ### Phase 1 — 风格与规格确认
 
-**封面比例**
-- A · 16:9（1920 × 1080）— B 站横屏封面
-- B · 3:4（1080 × 1440）— 小红书封面
-- C · 9:16（1080 × 1920）— 抖音竖屏封面
+**使用 AskUserQuestion 工具进行交互式选择**：
 
-**美术风格**（与 short-video-frames 保持一致）
-- 1 · 极简白底
-- 2 · 暗色技术感
-- 3 · 暖调书卷（#faf8f4 + 金色）
-- 4 · 杂志对比
-- 5 · 自定义
+```json
+{
+  "questions": [
+    {
+      "question": "请选择封面比例：",
+      "header": "封面比例",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "16:9 横屏",
+          "description": "1920 × 1080 — B 站横屏封面"
+        },
+        {
+          "label": "3:4 竖屏",
+          "description": "1080 × 1440 — 小红书封面"
+        },
+        {
+          "label": "9:16 竖屏",
+          "description": "1080 × 1920 — 抖音竖屏封面"
+        }
+      ]
+    },
+    {
+      "question": "请选择美术风格（与画面帧保持一致）：",
+      "header": "美术风格",
+      "multiSelect": false,
+      "options": [
+        {
+          "label": "1 · 极简白底",
+          "description": "大量留白 + 细实边框"
+        },
+        {
+          "label": "2 · 暗色技术感",
+          "description": "深色层次 + 冷色强调 + 网格纹理"
+        },
+        {
+          "label": "3 · 暖调书卷",
+          "description": "#faf8f4 + 金色点缀"
+        },
+        {
+          "label": "4 · 杂志对比",
+          "description": "高对比度 + 粗重标题"
+        }
+      ]
+    },
+    {
+      "question": "请选择封面元素（可多选）：",
+      "header": "可选元素",
+      "multiSelect": true,
+      "options": [
+        {
+          "label": "Stars 数字大字",
+          "description": "用特大字号展示 GitHub Stars 数"
+        },
+        {
+          "label": "编程语言标签",
+          "description": "显示项目主要编程语言"
+        },
+        {
+          "label": "角标徽章",
+          "description": "添加“开源推荐” “本周必看” 等角标"
+        },
+        {
+          "label": "作者头像占位",
+          "description": "预留区域供后期叠加头像"
+        }
+      ]
+    }
+  ]
+}
+```
 
-**可选元素**（多选）
-- [ ] 项目 Stars 数字大字展示
-- [ ] 编程语言标签
-- [ ] "开源推荐" / "本周必看" 等角标徽章
-- [ ] 作者头像占位区（留白，用户后期叠加）
-
-等待用户确认后进入 Phase 2。
+等待用户选择后进入 Phase 2。
 
 ---
 
